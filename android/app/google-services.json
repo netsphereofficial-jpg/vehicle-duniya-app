@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "984534433660",
+    "project_id": "vehicle-duniya-198e5",
+    "storage_bucket": "vehicle-duniya-198e5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:984534433660:android:27ff93d5c99ba13a64eef9",
+        "android_client_info": {
+          "package_name": "com.vehicleduniya.vehicle_duniya"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxcaVHZ7hwdqRMAPCBuJGoeyjJcw8e_bw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
