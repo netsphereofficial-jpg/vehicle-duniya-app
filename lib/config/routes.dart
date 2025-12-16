@@ -5,6 +5,7 @@ import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../features/auth/presentation/pages/login_page.dart';
 import '../features/auth/presentation/pages/otp_page.dart';
 import '../features/auth/presentation/pages/profile_setup_page.dart';
+import '../features/auth/presentation/pages/splash_page.dart';
 import '../features/home/presentation/pages/home_page.dart';
 import '../features/vehicle_auction/presentation/pages/vehicle_auction_page.dart';
 import '../features/property_auction/presentation/pages/property_auction_page.dart';
@@ -18,6 +19,7 @@ class AppRoutes {
   AppRoutes._();
 
   // Auth
+  static const String splash = '/splash';
   static const String login = '/login';
   static const String otp = '/otp';
   static const String profileSetup = '/profile-setup';
@@ -46,7 +48,7 @@ class AppRouter {
   static GoRouter router(AuthBloc authBloc) {
     return GoRouter(
       navigatorKey: _rootNavigatorKey,
-      initialLocation: AppRoutes.login,
+      initialLocation: AppRoutes.splash,
       debugLogDiagnostics: true,
       refreshListenable: _AuthRefreshStream(authBloc),
       redirect: (context, state) {
@@ -57,12 +59,23 @@ class AppRouter {
         final isLoading = authState.status == AuthStatus.initial ||
             authState.status == AuthStatus.loading;
 
+        final isSplash = state.matchedLocation == AppRoutes.splash;
         final isAuthRoute = state.matchedLocation == AppRoutes.login ||
             state.matchedLocation == AppRoutes.otp ||
             state.matchedLocation == AppRoutes.profileSetup;
 
-        // Wait for auth check
-        if (isLoading) return null;
+        // Still loading - stay on or go to splash
+        if (isLoading) {
+          return isSplash ? null : AppRoutes.splash;
+        }
+
+        // Done loading - redirect from splash to appropriate screen
+        if (isSplash) {
+          if (isAuthenticated) return AppRoutes.home;
+          if (needsProfile) return AppRoutes.profileSetup;
+          if (isOtpSent) return AppRoutes.otp;
+          return AppRoutes.login;
+        }
 
         // Need to complete profile
         if (needsProfile && state.matchedLocation != AppRoutes.profileSetup) {
@@ -87,6 +100,11 @@ class AppRouter {
         return null;
       },
       routes: [
+        // Splash
+        GoRoute(
+          path: AppRoutes.splash,
+          builder: (context, state) => const SplashPage(),
+        ),
         // Auth Routes
         GoRoute(
           path: AppRoutes.login,
