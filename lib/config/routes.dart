@@ -12,6 +12,14 @@ import '../features/property_auction/presentation/pages/property_auction_page.da
 import '../features/car_bazaar/presentation/pages/car_bazaar_page.dart';
 import '../features/bidding/presentation/pages/my_bids_page.dart';
 import '../features/profile/presentation/pages/profile_page.dart';
+import '../features/more/presentation/pages/more_page.dart';
+import '../features/more/presentation/pages/edit_profile_page.dart';
+import '../features/more/presentation/pages/kyc_page.dart';
+import '../features/more/presentation/pages/bank_details_page.dart';
+import '../features/more/presentation/pages/membership_page.dart';
+import '../features/more/presentation/pages/about_page.dart';
+import '../features/more/presentation/pages/policy_page.dart';
+import '../features/more/presentation/pages/coming_soon_page.dart';
 import 'main_shell.dart';
 
 /// Route paths
@@ -31,7 +39,24 @@ class AppRoutes {
   static const String carBazaar = '/car-bazaar';
   static const String myBids = '/my-bids';
   static const String profile = '/profile';
+  static const String more = '/more';
   static const String notifications = '/notifications';
+
+  // More Section Sub-Routes
+  static const String editProfile = '/more/edit-profile';
+  static const String kyc = '/more/kyc';
+  static const String bankDetails = '/more/bank-details';
+  static const String membership = '/more/membership';
+  static const String membershipRegister = '/more/membership-register';
+  static const String auctionDashboard = '/more/auction-dashboard';
+  static const String sellerListing = '/more/seller-listing';
+  static const String buyerListing = '/more/buyer-listing';
+  static const String about = '/more/about';
+  static const String help = '/more/help';
+  static const String complaint = '/more/complaint';
+  static const String policyRefund = '/more/policy/refund';
+  static const String policyPrivacy = '/more/policy/privacy';
+  static const String policyTerms = '/more/policy/terms';
 
   // Detail
   static const String auctionDetail = '/auction/:id';
@@ -154,6 +179,12 @@ class AppRouter {
                 child: ProfilePage(),
               ),
             ),
+            GoRoute(
+              path: AppRoutes.more,
+              pageBuilder: (context, state) => const NoTransitionPage(
+                child: MorePage(),
+              ),
+            ),
           ],
         ),
 
@@ -161,6 +192,97 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.carBazaar,
           builder: (context, state) => const CarBazaarPage(),
+        ),
+
+        // More Section Sub-Routes
+        GoRoute(
+          path: AppRoutes.editProfile,
+          builder: (context, state) => const EditProfilePage(),
+        ),
+        GoRoute(
+          path: AppRoutes.kyc,
+          builder: (context, state) => const KycPage(),
+        ),
+        GoRoute(
+          path: AppRoutes.bankDetails,
+          builder: (context, state) => const BankDetailsPage(),
+        ),
+        GoRoute(
+          path: AppRoutes.membership,
+          builder: (context, state) => const MembershipPage(),
+        ),
+        GoRoute(
+          path: AppRoutes.membershipRegister,
+          builder: (context, state) => const ComingSoonPage(
+            title: 'Membership Registration',
+            description: 'Premium membership registration will be available soon.',
+            icon: Icons.card_membership_rounded,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.auctionDashboard,
+          builder: (context, state) => const ComingSoonPage(
+            title: 'Auction Dashboard',
+            description: 'Your personalized auction dashboard is coming soon.',
+            icon: Icons.dashboard_rounded,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.sellerListing,
+          builder: (context, state) => const ComingSoonPage(
+            title: 'Seller Listing',
+            description: 'List your items for auction. Coming soon!',
+            icon: Icons.sell_rounded,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.buyerListing,
+          builder: (context, state) => const ComingSoonPage(
+            title: 'Buyer Listing',
+            description: 'Browse items to buy. Coming soon!',
+            icon: Icons.shopping_bag_rounded,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.about,
+          builder: (context, state) => const AboutPage(),
+        ),
+        GoRoute(
+          path: AppRoutes.help,
+          builder: (context, state) => const ComingSoonPage(
+            title: 'Help & Support',
+            description: 'Get help with your queries. Coming soon!',
+            icon: Icons.help_rounded,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.complaint,
+          builder: (context, state) => const ComingSoonPage(
+            title: 'Complaint Box',
+            description: 'Report issues and complaints. Coming soon!',
+            icon: Icons.feedback_rounded,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.policyRefund,
+          builder: (context, state) => const PolicyPage(
+            title: 'Refund Policy',
+            policyType: PolicyType.refund,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.policyPrivacy,
+          builder: (context, state) => const PolicyPage(
+            title: 'Privacy Policy',
+            policyType: PolicyType.privacy,
+          ),
+        ),
+        GoRoute(
+          path: AppRoutes.policyTerms,
+          builder: (context, state) => const PolicyPage(
+            title: 'Terms & Conditions',
+            policyType: PolicyType.terms,
+          ),
         ),
       ],
     );
