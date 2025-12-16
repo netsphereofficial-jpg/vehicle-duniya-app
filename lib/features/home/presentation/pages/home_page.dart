@@ -167,7 +167,7 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
                           // Why Choose Us
                           _buildWhyChooseUs(),
 
-                          const SizedBox(height: 100),
+                          const SizedBox(height: 24),
                         ],
                       ),
                     ),
@@ -1027,7 +1027,7 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
   Widget _buildFloatingHelpButton() {
     return Positioned(
       right: 16,
-      bottom: 90, // Above bottom navigation
+      bottom: 24, // Just above bottom navigation
       child: AnimatedBuilder(
         animation: _helpButtonAnimation,
         builder: (context, child) {
@@ -1039,54 +1039,43 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
         child: GestureDetector(
           onTap: () => _showHelpBottomSheet(context),
           child: Container(
-            width: 56,
-            height: 56,
+            width: 54,
+            height: 54,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF10B981), Color(0xFF059669)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              color: Colors.white,
               shape: BoxShape.circle,
+              border: Border.all(
+                color: const Color(0xFF25D366).withValues(alpha: 0.3),
+                width: 2,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.4),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
                 ),
                 BoxShadow(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.2),
-                  blurRadius: 30,
-                  offset: const Offset(0, 10),
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                const Icon(
-                  Icons.headset_mic_rounded,
-                  color: Colors.white,
-                  size: 26,
+            child: Container(
+              margin: const EdgeInsets.all(3),
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF25D366), Color(0xFF128C7E)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-                // Small notification dot
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: const Color(0xFF10B981),
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.headset_mic_rounded,
+                color: Colors.white,
+                size: 24,
+              ),
             ),
           ),
         ),
