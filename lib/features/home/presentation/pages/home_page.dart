@@ -167,7 +167,7 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
                           // Why Choose Us
                           _buildWhyChooseUs(),
 
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 12),
                         ],
                       ),
                     ),
