@@ -35,9 +35,11 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
   int _currentBannerIndex = 0;
   Timer? _bannerTimer;
 
-  // Animation controllers for news ticker
+  // Animation controllers
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+  late AnimationController _helpButtonController;
+  late Animation<double> _helpButtonAnimation;
 
   @override
   void initState() {
@@ -52,6 +54,16 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
 
     _pulseAnimation = Tween<double>(begin: 0.4, end: 1.0).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+
+    // Pulse animation for help button
+    _helpButtonController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+
+    _helpButtonAnimation = Tween<double>(begin: 1.0, end: 1.08).animate(
+      CurvedAnimation(parent: _helpButtonController, curve: Curves.easeInOut),
     );
   }
 
@@ -73,6 +85,7 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
     _bannerTimer?.cancel();
     _bannerController.dispose();
     _pulseController.dispose();
+    _helpButtonController.dispose();
     super.dispose();
   }
 
@@ -86,83 +99,85 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
             return const HomePageShimmer();
           }
 
-          return RefreshIndicator(
-            onRefresh: () async {
-              context.read<HomeBloc>().add(const HomeRefreshRequested());
-              await Future.delayed(const Duration(milliseconds: 500));
-            },
-            color: AppColors.primary,
-            child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(
-                parent: BouncingScrollPhysics(),
-              ),
-              slivers: [
-                _buildAppBar(context),
-                SliverToBoxAdapter(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Banner Carousel
-                      _buildBannerCarousel(),
-
-                      // News Ticker - Amazing Design
-                      _buildAmazingNewsTicker(),
-
-                      const SizedBox(height: 24),
-
-                      // Quick Actions - 3 Main Features
-                      _buildMainFeatures(context),
-
-                      const SizedBox(height: 20),
-
-                      // Membership Registration Card
-                      _buildMembershipCard(context),
-
-                      const SizedBox(height: 20),
-
-                      // Support Section
-                      _buildSupportSection(),
-
-                      const SizedBox(height: 24),
-
-                      // Live Auctions
-                      _buildAuctionsSection(
-                        context,
-                        title: 'Live Auctions',
-                        subtitle: 'Bid now on active auctions',
-                        auctions: state.liveAuctions,
-                        isLive: true,
-                        onViewAll: () => context.go('/vehicles'),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // YouTube Section
-                      _buildYouTubeSection(),
-
-                      const SizedBox(height: 24),
-
-                      // Upcoming Auctions
-                      _buildAuctionsSection(
-                        context,
-                        title: 'Upcoming Auctions',
-                        subtitle: 'Get ready to bid',
-                        auctions: state.upcomingAuctions,
-                        isLive: false,
-                        onViewAll: () => context.go('/vehicles'),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Why Choose Us
-                      _buildWhyChooseUs(),
-
-                      const SizedBox(height: 100),
-                    ],
+          return Stack(
+            children: [
+              RefreshIndicator(
+                onRefresh: () async {
+                  context.read<HomeBloc>().add(const HomeRefreshRequested());
+                  await Future.delayed(const Duration(milliseconds: 500));
+                },
+                color: AppColors.primary,
+                child: CustomScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
                   ),
+                  slivers: [
+                    _buildAppBar(context),
+                    SliverToBoxAdapter(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Banner Carousel
+                          _buildBannerCarousel(),
+
+                          // News Ticker - Amazing Design
+                          _buildAmazingNewsTicker(),
+
+                          const SizedBox(height: 24),
+
+                          // Quick Actions - 3 Main Features
+                          _buildMainFeatures(context),
+
+                          const SizedBox(height: 20),
+
+                          // Membership Registration Card
+                          _buildMembershipCard(context),
+
+                          const SizedBox(height: 24),
+
+                          // Live Auctions
+                          _buildAuctionsSection(
+                            context,
+                            title: 'Live Auctions',
+                            subtitle: 'Bid now on active auctions',
+                            auctions: state.liveAuctions,
+                            isLive: true,
+                            onViewAll: () => context.go('/vehicles'),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // YouTube Section
+                          _buildYouTubeSection(),
+
+                          const SizedBox(height: 24),
+
+                          // Upcoming Auctions
+                          _buildAuctionsSection(
+                            context,
+                            title: 'Upcoming Auctions',
+                            subtitle: 'Get ready to bid',
+                            auctions: state.upcomingAuctions,
+                            isLive: false,
+                            onViewAll: () => context.go('/vehicles'),
+                          ),
+
+                          const SizedBox(height: 24),
+
+                          // Why Choose Us
+                          _buildWhyChooseUs(),
+
+                          const SizedBox(height: 100),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+
+              // Floating Help Button
+              _buildFloatingHelpButton(),
+            ],
           );
         },
       ),
@@ -676,85 +691,6 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildSupportSection() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.support_agent_rounded,
-                  color: AppColors.primary,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                'Need Help? Contact Us',
-                style: GoogleFonts.poppins(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _SupportButton(
-                  icon: Icons.call_rounded,
-                  label: 'Call',
-                  color: const Color(0xFF059669),
-                  onTap: () => _launchUrl('tel:+911800XXXXXX'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _SupportButton(
-                  icon: Icons.message_rounded,
-                  label: 'WhatsApp',
-                  color: const Color(0xFF25D366),
-                  onTap: () => _launchUrl('https://wa.me/911800XXXXXX'),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _SupportButton(
-                  icon: Icons.email_rounded,
-                  label: 'Email',
-                  color: const Color(0xFF3B82F6),
-                  onTap: () => _launchUrl('mailto:support@vehicleduniya.com'),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildAuctionsSection(
     BuildContext context, {
     required String title,
@@ -1013,10 +949,10 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
 
   Widget _buildWhyChooseUs() {
     final features = [
-      _WhyUsData(Icons.verified_user_rounded, 'Verified', 'All inspected'),
-      _WhyUsData(Icons.price_check_rounded, 'Best Price', 'Competitive'),
-      _WhyUsData(Icons.support_agent_rounded, '24/7', 'Support'),
-      _WhyUsData(Icons.security_rounded, 'Secure', 'Payments'),
+      _WhyUsData(Icons.verified_user_rounded, 'Verified', 'All inspected', const Color(0xFF10B981)),
+      _WhyUsData(Icons.price_check_rounded, 'Best Price', 'Competitive', const Color(0xFFF59E0B)),
+      _WhyUsData(Icons.support_agent_rounded, '24/7', 'Support', const Color(0xFF3B82F6)),
+      _WhyUsData(Icons.security_rounded, 'Secure', 'Payments', const Color(0xFF8B5CF6)),
     ];
 
     return Container(
@@ -1054,12 +990,12 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
                     width: 50,
                     height: 50,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                      color: feature.color.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       feature.icon,
-                      color: AppColors.primary,
+                      color: feature.color,
                       size: 24,
                     ),
                   ),
@@ -1088,6 +1024,246 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
     );
   }
 
+  Widget _buildFloatingHelpButton() {
+    return Positioned(
+      right: 16,
+      bottom: 90, // Above bottom navigation
+      child: AnimatedBuilder(
+        animation: _helpButtonAnimation,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: _helpButtonAnimation.value,
+            child: child,
+          );
+        },
+        child: GestureDetector(
+          onTap: () => _showHelpBottomSheet(context),
+          child: Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF10B981), Color(0xFF059669)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.4),
+                  blurRadius: 16,
+                  offset: const Offset(0, 6),
+                ),
+                BoxShadow(
+                  color: const Color(0xFF10B981).withValues(alpha: 0.2),
+                  blurRadius: 30,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                const Icon(
+                  Icons.headset_mic_rounded,
+                  color: Colors.white,
+                  size: 26,
+                ),
+                // Small notification dot
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color(0xFF10B981),
+                        width: 2,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showHelpBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.border,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Header
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    const Color(0xFF10B981).withValues(alpha: 0.1),
+                    const Color(0xFF059669).withValues(alpha: 0.05),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF10B981), Color(0xFF059669)],
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(
+                      Icons.support_agent_rounded,
+                      color: Colors.white,
+                      size: 26,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Need Help?',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                        Text(
+                          'We\'re here to assist you 24/7',
+                          style: GoogleFonts.inter(
+                            fontSize: 13,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Contact Options
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                children: [
+                  _HelpOptionTile(
+                    icon: Icons.call_rounded,
+                    title: 'Call Us',
+                    subtitle: '1800-XXX-XXXX (Toll Free)',
+                    color: const Color(0xFF059669),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _launchUrl('tel:+911800XXXXXX');
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _HelpOptionTile(
+                    icon: Icons.message_rounded,
+                    title: 'WhatsApp',
+                    subtitle: 'Chat with us instantly',
+                    color: const Color(0xFF25D366),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _launchUrl('https://wa.me/911800XXXXXX');
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  _HelpOptionTile(
+                    icon: Icons.email_rounded,
+                    title: 'Email Us',
+                    subtitle: 'support@vehicleduniya.com',
+                    color: const Color(0xFF3B82F6),
+                    onTap: () {
+                      Navigator.pop(context);
+                      _launchUrl('mailto:support@vehicleduniya.com');
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+
+            // Quick FAQ
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.help_outline_rounded,
+                      color: AppColors.textSecondary,
+                      size: 22,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Check our FAQ section for quick answers',
+                        style: GoogleFonts.inter(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      color: AppColors.textTertiary,
+                      size: 16,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SafeArea(
+              top: false,
+              child: const SizedBox(height: 8),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _launchUrl(String url) async {
     final uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
@@ -1101,8 +1277,9 @@ class _WhyUsData {
   final IconData icon;
   final String title;
   final String subtitle;
+  final Color color;
 
-  const _WhyUsData(this.icon, this.title, this.subtitle);
+  const _WhyUsData(this.icon, this.title, this.subtitle, this.color);
 }
 
 /// Premium Feature Card Widget
@@ -1459,43 +1636,89 @@ class _NewsItem {
   const _NewsItem(this.emoji, this.text);
 }
 
-// Support Button Widget
-class _SupportButton extends StatelessWidget {
+// Help Option Tile Widget
+class _HelpOptionTile extends StatelessWidget {
   final IconData icon;
-  final String label;
+  final String title;
+  final String subtitle;
   final Color color;
   final VoidCallback onTap;
 
-  const _SupportButton({
+  const _HelpOptionTile({
     required this.icon,
-    required this.label,
+    required this.title,
+    required this.subtitle,
     required this.color,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 22),
-            const SizedBox(height: 6),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: color,
-              ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: color.withValues(alpha: 0.15),
+              width: 1,
             ),
-          ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(icon, color: Colors.white, size: 24),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.inter(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: color,
+                  size: 14,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
