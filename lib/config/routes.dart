@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../core/di/injection.dart';
 import '../features/auth/presentation/bloc/auth_bloc.dart';
 import '../features/auth/presentation/pages/login_page.dart';
 import '../features/auth/presentation/pages/otp_page.dart';
@@ -48,49 +46,45 @@ class AppRouter {
   static GoRouter router(AuthBloc authBloc) {
     return GoRouter(
       navigatorKey: _rootNavigatorKey,
-      initialLocation: AppRoutes.home,
+      initialLocation: AppRoutes.login,
       debugLogDiagnostics: true,
       refreshListenable: _AuthRefreshStream(authBloc),
       redirect: (context, state) {
-        // TODO: Remove this bypass after testing
-        // BYPASS LOGIN FOR TESTING - always go to home
+        final authState = authBloc.state;
+        final isAuthenticated = authState.isAuthenticated;
+        final isOtpSent = authState.isOtpSent;
+        final needsProfile = authState.needsProfile;
+        final isLoading = authState.status == AuthStatus.initial ||
+            authState.status == AuthStatus.loading;
+
+        final isAuthRoute = state.matchedLocation == AppRoutes.login ||
+            state.matchedLocation == AppRoutes.otp ||
+            state.matchedLocation == AppRoutes.profileSetup;
+
+        // Wait for auth check
+        if (isLoading) return null;
+
+        // Need to complete profile
+        if (needsProfile && state.matchedLocation != AppRoutes.profileSetup) {
+          return AppRoutes.profileSetup;
+        }
+
+        // OTP sent, go to OTP page
+        if (isOtpSent && state.matchedLocation != AppRoutes.otp) {
+          return AppRoutes.otp;
+        }
+
+        // Not authenticated, redirect to login
+        if (!isAuthenticated && !isOtpSent && !needsProfile && !isAuthRoute) {
+          return AppRoutes.login;
+        }
+
+        // Authenticated but on auth route, redirect to home
+        if (isAuthenticated && isAuthRoute) {
+          return AppRoutes.home;
+        }
+
         return null;
-
-        // final authState = authBloc.state;
-        // final isAuthenticated = authState.isAuthenticated;
-        // final isOtpSent = authState.isOtpSent;
-        // final needsProfile = authState.needsProfile;
-        // final isLoading = authState.status == AuthStatus.initial ||
-        //     authState.status == AuthStatus.loading;
-
-        // final isAuthRoute = state.matchedLocation == AppRoutes.login ||
-        //     state.matchedLocation == AppRoutes.otp ||
-        //     state.matchedLocation == AppRoutes.profileSetup;
-
-        // // Wait for auth check
-        // if (isLoading) return null;
-
-        // // Need to complete profile
-        // if (needsProfile && state.matchedLocation != AppRoutes.profileSetup) {
-        //   return AppRoutes.profileSetup;
-        // }
-
-        // // OTP sent, go to OTP page
-        // if (isOtpSent && state.matchedLocation != AppRoutes.otp) {
-        //   return AppRoutes.otp;
-        // }
-
-        // // Not authenticated, redirect to login
-        // if (!isAuthenticated && !isOtpSent && !needsProfile && !isAuthRoute) {
-        //   return AppRoutes.login;
-        // }
-
-        // // Authenticated but on auth route, redirect to home
-        // if (isAuthenticated && isAuthRoute) {
-        //   return AppRoutes.home;
-        // }
-
-        // return null;
       },
       routes: [
         // Auth Routes
