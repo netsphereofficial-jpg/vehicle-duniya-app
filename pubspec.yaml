@@ -75,6 +75,9 @@ dependencies:
   # Pull to Refresh
   pull_to_refresh: ^2.0.0
 
+  # Bottom Navigation
+  salomon_bottom_bar: ^3.3.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -106,6 +109,7 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/banners/
     - assets/icons/
     - assets/animations/
 

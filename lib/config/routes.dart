@@ -137,6 +137,12 @@ class AppRouter {
               ),
             ),
             GoRoute(
+              path: AppRoutes.properties,
+              pageBuilder: (context, state) => const NoTransitionPage(
+                child: PropertyAuctionPage(),
+              ),
+            ),
+            GoRoute(
               path: AppRoutes.myBids,
               pageBuilder: (context, state) => const NoTransitionPage(
                 child: MyBidsPage(),
@@ -152,10 +158,6 @@ class AppRouter {
         ),
 
         // Standalone Pages
-        GoRoute(
-          path: AppRoutes.properties,
-          builder: (context, state) => const PropertyAuctionPage(),
-        ),
         GoRoute(
           path: AppRoutes.carBazaar,
           builder: (context, state) => const CarBazaarPage(),
