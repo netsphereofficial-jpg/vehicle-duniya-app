@@ -48,6 +48,16 @@ class AuthUpdateProfileRequested extends AuthEvent {
   List<Object?> get props => [user];
 }
 
+/// Upload profile image
+class AuthUploadProfileImageRequested extends AuthEvent {
+  final List<int> imageData;
+
+  const AuthUploadProfileImageRequested(this.imageData);
+
+  @override
+  List<Object?> get props => [imageData];
+}
+
 /// Sign out
 class AuthSignOutRequested extends AuthEvent {
   const AuthSignOutRequested();

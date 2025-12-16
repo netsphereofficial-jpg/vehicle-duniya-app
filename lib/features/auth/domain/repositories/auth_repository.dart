@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../shared/domain/entities/user.dart';
@@ -18,6 +19,9 @@ abstract class AuthRepository {
 
   /// Update user profile
   Future<Either<Failure, User>> updateProfile(User user);
+
+  /// Upload profile image and return URL
+  Future<Either<Failure, String>> uploadProfileImage(Uint8List imageData);
 
   /// Sign out
   Future<Either<Failure, void>> signOut();

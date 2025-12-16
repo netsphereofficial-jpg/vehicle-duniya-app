@@ -21,6 +21,8 @@ class AuthState extends Equatable {
   final String? errorMessage;
   final bool canResendOtp;
   final int resendCountdown;
+  final bool isUploadingImage;
+  final String? uploadedImageUrl;
 
   const AuthState({
     this.status = AuthStatus.initial,
@@ -30,6 +32,8 @@ class AuthState extends Equatable {
     this.errorMessage,
     this.canResendOtp = false,
     this.resendCountdown = 0,
+    this.isUploadingImage = false,
+    this.uploadedImageUrl,
   });
 
   bool get isLoading => status == AuthStatus.loading || status == AuthStatus.verifying;
@@ -46,8 +50,11 @@ class AuthState extends Equatable {
     String? errorMessage,
     bool? canResendOtp,
     int? resendCountdown,
+    bool? isUploadingImage,
+    String? uploadedImageUrl,
     bool clearError = false,
     bool clearUser = false,
+    bool clearUploadedImage = false,
   }) {
     return AuthState(
       status: status ?? this.status,
@@ -57,6 +64,8 @@ class AuthState extends Equatable {
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       canResendOtp: canResendOtp ?? this.canResendOtp,
       resendCountdown: resendCountdown ?? this.resendCountdown,
+      isUploadingImage: isUploadingImage ?? this.isUploadingImage,
+      uploadedImageUrl: clearUploadedImage ? null : (uploadedImageUrl ?? this.uploadedImageUrl),
     );
   }
 
@@ -69,5 +78,7 @@ class AuthState extends Equatable {
         errorMessage,
         canResendOtp,
         resendCountdown,
+        isUploadingImage,
+        uploadedImageUrl,
       ];
 }

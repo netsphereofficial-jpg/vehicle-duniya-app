@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -22,6 +23,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthVerifyOtpRequested>(_onVerifyOtpRequested);
     on<AuthResendOtpRequested>(_onResendOtpRequested);
     on<AuthUpdateProfileRequested>(_onUpdateProfileRequested);
+    on<AuthUploadProfileImageRequested>(_onUploadProfileImageRequested);
     on<AuthSignOutRequested>(_onSignOutRequested);
     on<AuthErrorCleared>(_onErrorCleared);
   }
@@ -189,6 +191,34 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(state.copyWith(
           status: AuthStatus.authenticated,
           user: user,
+          clearUploadedImage: true,
+        ));
+      },
+    );
+  }
+
+  Future<void> _onUploadProfileImageRequested(
+    AuthUploadProfileImageRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    AppLogger.blocEvent('AuthBloc', 'AuthUploadProfileImageRequested');
+    emit(state.copyWith(isUploadingImage: true, clearError: true));
+
+    final result = await _authRepository.uploadProfileImage(
+      Uint8List.fromList(event.imageData),
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(
+          isUploadingImage: false,
+          errorMessage: failure.message,
+        ));
+      },
+      (imageUrl) {
+        emit(state.copyWith(
+          isUploadingImage: false,
+          uploadedImageUrl: imageUrl,
         ));
       },
     );

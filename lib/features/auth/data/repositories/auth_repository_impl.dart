@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:firebase_storage/firebase_storage.dart';
 
 import '../../../../core/constants/firebase_constants.dart';
 import '../../../../core/errors/failures.dart';
@@ -14,6 +16,7 @@ import '../../domain/repositories/auth_repository.dart';
 class AuthRepositoryImpl implements AuthRepository {
   final firebase_auth.FirebaseAuth _firebaseAuth;
   final FirebaseFirestore _firestore;
+  final FirebaseStorage _firebaseStorage;
   final StorageService _storageService;
 
   String? _verificationId;
@@ -23,9 +26,11 @@ class AuthRepositoryImpl implements AuthRepository {
     required firebase_auth.FirebaseAuth firebaseAuth,
     required FirebaseFirestore firestore,
     required StorageService storageService,
+    FirebaseStorage? firebaseStorage,
   })  : _firebaseAuth = firebaseAuth,
         _firestore = firestore,
-        _storageService = storageService;
+        _storageService = storageService,
+        _firebaseStorage = firebaseStorage ?? FirebaseStorage.instance;
 
   @override
   bool get isSignedIn => _firebaseAuth.currentUser != null;
@@ -228,6 +233,30 @@ class AuthRepositoryImpl implements AuthRepository {
     } catch (e) {
       AppLogger.error('AuthRepository', 'Sign out error', error: e);
       return left(const AuthFailure(message: 'Sign out failed'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> uploadProfileImage(Uint8List imageData) async {
+    try {
+      final userId = currentUserId;
+      if (userId == null) {
+        return left(const AuthFailure(message: 'User not authenticated'));
+      }
+
+      AppLogger.info('AuthRepository', 'Uploading profile image');
+
+      final ref = _firebaseStorage.ref('profile_images/$userId.jpg');
+      final metadata = SettableMetadata(contentType: 'image/jpeg');
+
+      await ref.putData(imageData, metadata);
+      final downloadUrl = await ref.getDownloadURL();
+
+      AppLogger.info('AuthRepository', 'Profile image uploaded: $downloadUrl');
+      return right(downloadUrl);
+    } catch (e) {
+      AppLogger.error('AuthRepository', 'Upload profile image error', error: e);
+      return left(const FirebaseFailure(message: 'Failed to upload image'));
     }
   }
 }
