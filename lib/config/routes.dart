@@ -8,6 +8,7 @@ import '../features/auth/presentation/pages/profile_setup_page.dart';
 import '../features/auth/presentation/pages/splash_page.dart';
 import '../features/home/presentation/pages/home_page.dart';
 import '../features/vehicle_auction/presentation/pages/vehicle_auction_page.dart';
+import '../features/vehicle_auction/presentation/pages/auction_detail_page.dart';
 import '../features/property_auction/presentation/pages/property_auction_page.dart';
 import '../features/car_bazaar/presentation/pages/car_bazaar_page.dart';
 import '../features/bidding/presentation/pages/my_bids_page.dart';
@@ -59,6 +60,7 @@ class AppRoutes {
   static const String policyTerms = '/more/policy/terms';
 
   // Detail
+  static const String vehicleAuctionDetail = '/vehicles/auction/:id';
   static const String auctionDetail = '/auction/:id';
   static const String vehicleDetail = '/vehicle/:id';
   static const String propertyDetail = '/property/:id';
@@ -192,6 +194,15 @@ class AppRouter {
         GoRoute(
           path: AppRoutes.carBazaar,
           builder: (context, state) => const CarBazaarPage(),
+        ),
+
+        // Vehicle Auction Detail
+        GoRoute(
+          path: AppRoutes.vehicleAuctionDetail,
+          builder: (context, state) {
+            final auctionId = state.pathParameters['id'] ?? '';
+            return AuctionDetailPage(auctionId: auctionId);
+          },
         ),
 
         // More Section Sub-Routes

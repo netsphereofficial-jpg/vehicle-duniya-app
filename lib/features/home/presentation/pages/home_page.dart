@@ -188,17 +188,19 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
     return SliverAppBar(
       floating: true,
       snap: true,
+      pinned: false,
       backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
-      elevation: 0,
-      toolbarHeight: 60,
+      elevation: 2,
+      shadowColor: Colors.black.withValues(alpha: 0.15),
+      toolbarHeight: 64,
       title: Row(
         children: [
           Container(
-            width: 42,
-            height: 42,
+            width: 44,
+            height: 44,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
                   color: AppColors.primary.withValues(alpha: 0.2),
@@ -208,14 +210,14 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
               ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(12),
               child: Image.asset(
                 'assets/images/logo.png',
                 fit: BoxFit.cover,
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,7 +225,7 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
                 Text(
                   'Vehicle Duniya',
                   style: GoogleFonts.poppins(
-                    fontSize: 17,
+                    fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
                   ),
@@ -231,7 +233,7 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
                 Text(
                   'Your Trusted Auction Partner',
                   style: GoogleFonts.inter(
-                    fontSize: 10,
+                    fontSize: 11,
                     color: AppColors.textSecondary,
                   ),
                 ),
@@ -244,11 +246,15 @@ class _HomeViewState extends State<_HomeView> with TickerProviderStateMixin {
         GestureDetector(
           onTap: () {},
           child: Container(
-            margin: const EdgeInsets.only(right: 12),
-            padding: const EdgeInsets.all(8),
+            margin: const EdgeInsets.only(right: 14),
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF0F2F5),
-              borderRadius: BorderRadius.circular(10),
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.border,
+                width: 1,
+              ),
             ),
             child: Stack(
               children: [

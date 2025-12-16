@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -326,6 +327,7 @@ class _VehicleAuctionViewState extends State<_VehicleAuctionView> with SingleTic
   }
 }
 
+/// Compact Auction Card - Shows key info without large image
 class _AuctionCard extends StatelessWidget {
   final Auction auction;
 
@@ -333,173 +335,221 @@ class _AuctionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final statusColor = _getStatusColor();
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         child: InkWell(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(12),
           onTap: () {
-            // TODO: Navigate to auction detail
+            context.push('/vehicles/auction/${auction.id}');
           },
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Image with Status Badge
-              Stack(
-                children: [
-                  Container(
-                    height: 180,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.primary.withValues(alpha: 0.1),
-                          AppColors.primaryLight.withValues(alpha: 0.05),
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Icons.directions_car_rounded,
-                        size: 64,
-                        color: AppColors.primary.withValues(alpha: 0.3),
-                      ),
+          child: IntrinsicHeight(
+            child: Row(
+              children: [
+                // Status Color Bar
+                Container(
+                  width: 4,
+                  decoration: BoxDecoration(
+                    color: statusColor,
+                    borderRadius: const BorderRadius.horizontal(
+                      left: Radius.circular(12),
                     ),
                   ),
-                  // Status Badge
-                  Positioned(
-                    top: 12,
-                    left: 12,
-                    child: _buildStatusBadge(),
-                  ),
-                  // Vehicle Count
-                  Positioned(
-                    top: 12,
-                    right: 12,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.6),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(
-                            Icons.directions_car_outlined,
-                            size: 14,
-                            color: Colors.white,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            '${auction.vehicleCount} vehicles',
-                            style: GoogleFonts.inter(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
 
-              // Content
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title
-                    Text(
-                      auction.name,
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Info Row
-                    Row(
+                // Main Content
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildInfoChip(
-                          Icons.calendar_today_outlined,
-                          EventTypeX(auction.eventType).displayName,
-                        ),
-                        const SizedBox(width: 12),
-                        _buildInfoChip(
-                          Icons.access_time_rounded,
-                          auction.isLive ? 'Bidding Open' : 'Starting Soon',
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Action Button
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // TODO: Navigate to auction detail
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: auction.isLive ? AppColors.success : AppColors.primary,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 0,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                        // Top Row: Status Badge + Event Type
+                        Row(
                           children: [
-                            Icon(
-                              auction.isLive ? Icons.gavel_rounded : Icons.visibility_rounded,
-                              size: 20,
-                            ),
+                            _buildStatusBadge(),
                             const SizedBox(width: 8),
-                            Text(
-                              auction.isLive ? 'Bid Now' : 'View Auction',
-                              style: GoogleFonts.inter(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primarySurface,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                auction.eventType.displayName,
+                                style: GoogleFonts.inter(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ),
+                            const Spacer(),
+                            // Vehicle Count
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.directions_car_outlined,
+                                  size: 14,
+                                  color: AppColors.textSecondary,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${auction.vehicleCount}',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Auction Name
+                        Text(
+                          auction.name,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                            height: 1.3,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Bottom Row: Timing + Action
+                        Row(
+                          children: [
+                            // Timing Info
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.access_time_rounded,
+                                    size: 14,
+                                    color: AppColors.textTertiary,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Expanded(
+                                    child: Text(
+                                      _getTimingText(),
+                                      style: GoogleFonts.inter(
+                                        fontSize: 11,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            // Action Button
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: auction.isLive
+                                    ? AppColors.success
+                                    : AppColors.primary,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    auction.isLive
+                                        ? Icons.gavel_rounded
+                                        : Icons.arrow_forward_rounded,
+                                    size: 14,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    auction.isLive ? 'Bid' : 'View',
+                                    style: GoogleFonts.inter(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  Color _getStatusColor() {
+    if (auction.isLive) return AppColors.success;
+    if (auction.isUpcoming) return AppColors.info;
+    return AppColors.textTertiary;
+  }
+
+  String _getTimingText() {
+    if (auction.isLive) {
+      if (auction.endDate != null) {
+        final remaining = auction.endDate!.difference(DateTime.now());
+        if (remaining.inDays > 0) {
+          return 'Ends in ${remaining.inDays}d ${remaining.inHours.remainder(24)}h';
+        } else if (remaining.inHours > 0) {
+          return 'Ends in ${remaining.inHours}h ${remaining.inMinutes.remainder(60)}m';
+        } else {
+          return 'Ends in ${remaining.inMinutes}m';
+        }
+      }
+      return 'Bidding Open';
+    } else if (auction.isUpcoming) {
+      if (auction.startDate != null) {
+        final remaining = auction.startDate!.difference(DateTime.now());
+        if (remaining.inDays > 0) {
+          return 'Starts in ${remaining.inDays}d ${remaining.inHours.remainder(24)}h';
+        } else if (remaining.inHours > 0) {
+          return 'Starts in ${remaining.inHours}h ${remaining.inMinutes.remainder(60)}m';
+        } else {
+          return 'Starting soon';
+        }
+      }
+      return 'Starting Soon';
+    }
+    return 'Ended';
   }
 
   Widget _buildStatusBadge() {
@@ -507,102 +557,45 @@ class _AuctionCard extends StatelessWidget {
     final isUpcoming = auction.isUpcoming;
 
     Color bgColor;
-    Color textColor;
     String text;
-    IconData icon;
 
     if (isLive) {
       bgColor = AppColors.success;
-      textColor = Colors.white;
       text = 'LIVE';
-      icon = Icons.fiber_manual_record;
     } else if (isUpcoming) {
       bgColor = AppColors.info;
-      textColor = Colors.white;
       text = 'UPCOMING';
-      icon = Icons.schedule_rounded;
     } else {
       bgColor = AppColors.textSecondary;
-      textColor = Colors.white;
       text = 'ENDED';
-      icon = Icons.check_circle_outline_rounded;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: bgColor,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: isLive
-            ? [
-                BoxShadow(
-                  color: bgColor.withValues(alpha: 0.4),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ]
-            : null,
+        borderRadius: BorderRadius.circular(4),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           if (isLive)
             Container(
-              width: 8,
-              height: 8,
-              margin: const EdgeInsets.only(right: 6),
-              decoration: BoxDecoration(
+              width: 6,
+              height: 6,
+              margin: const EdgeInsets.only(right: 4),
+              decoration: const BoxDecoration(
                 color: Colors.white,
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.white.withValues(alpha: 0.6),
-                    blurRadius: 4,
-                  ),
-                ],
               ),
-            )
-          else
-            Padding(
-              padding: const EdgeInsets.only(right: 4),
-              child: Icon(icon, size: 12, color: textColor),
             ),
           Text(
             text,
             style: GoogleFonts.inter(
-              fontSize: 11,
+              fontSize: 9,
               fontWeight: FontWeight.w700,
-              color: textColor,
+              color: Colors.white,
               letterSpacing: 0.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildInfoChip(IconData icon, String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: AppColors.background,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icon,
-            size: 14,
-            color: AppColors.textSecondary,
-          ),
-          const SizedBox(width: 6),
-          Text(
-            text,
-            style: GoogleFonts.inter(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textSecondary,
             ),
           ),
         ],

@@ -98,9 +98,12 @@ void _initBlocs() {
     () => HomeBloc(realtimeService: getIt<RealtimeFirebaseService>()),
   );
 
-  // Vehicle Auction BLoC (Factory)
+  // Vehicle Auction BLoC (Factory) - Uses RealtimeFirebaseService for live auctions
   getIt.registerFactory<VehicleAuctionBloc>(
-    () => VehicleAuctionBloc(firebaseService: getIt<FirebaseService>()),
+    () => VehicleAuctionBloc(
+      firebaseService: getIt<FirebaseService>(),
+      realtimeService: getIt<RealtimeFirebaseService>(),
+    ),
   );
 
   // Property Auction BLoC (Factory)
